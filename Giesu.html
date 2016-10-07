@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>BioPortal SPARQL Query Example</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    
+
+    <script type="text/javascript">
+        var BP_ontology_id = "NCIT,BIRNLEX";
+    </script>
+    <script src="quick_jump.js" type="text/javascript" charset="utf-8">
+    </script>
+
+    <script type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="jquery.ncbo.tree.css">
+    <link rel="stylesheet" type="text/css" href="giasu.css">
+    <link type="text/css" href="bootstrap.css" rel="stylesheet">
+
+  <script type="text/javascript" src="../exampleUtil.js"></script>
+  <script type="text/javascript" src="../../../dist/vis.js"></script>
+  <script type="text/javascript" src="jquery.ncbo.tree-2.0.2.js"></script>
+  <link href="../../../dist/vis.css" rel="stylesheet" type="text/css" />
+
+  <script type="text/javascript" src="submitQuery.js"></script>
+  <script type="text/javascript" src="addToQuery.js"></script>  
+  <script type="text/javascript" src="i2eAPI-service.js"></script>
+  <script type="text/javascript" src="sparql_client.js"></script>
+  <script type="text/javascript" src="form_complete.js"></script>
+  <script type="text/javascript" src="rxnav_client.js"></script>
+  <script type="text/javascript" src="path-finder.service.js"></script>
+  <script type="text/javascript" src="concept-explorer.component.js"></script>
+  <script type="text/javascript" src="disgenet_client.js"></script>
+  <script type="text/javascript" src="biontology_client.js"></script>
+  <script type="text/javascript" src="graph-creation.js"></script>
+  <script type="text/javascript" src="table-creation.js"></script>
+  <script type="text/javascript" src="inform-user.component.js"></script>
+  <script type="text/javascript" src="twoConceptsRelationAPI.js"></script>
+  <script type="text/javascript" src="findAllConceptRelations.js"></script>
+  <script type="text/javascript" src="app.js"></script>
+
+
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <!-- <script src="../../googleAnalytics.js"></script> -->
+</head> 
+<body>
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">GIESU</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Dashboard</a></li>
+        <li><a href="#">Profile</a></li>
+        <li><a href="#">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3">
+    <div class="jumbotron">
+      <div id='interMainContent'></div>
+      <h5>Add concepts and relationships to formulate a query</h5>
+      <h6 id="multi_search"></h6>
+      <form id="form_for_concept">
+        <div class="form-group">
+          <input name="name" class="bp_form_complete-all-name form-control" id="ontology_class" type="text" />
+          <!-- data-bp_include_definitions="true" --> 
+        </div>
+        <button hidden name="submit" id="submit_may_treat" type="button">may_treat example</button>
+        <button name="submit" id="add_to_query" type="button">Add to Query</button>
+        <button name="submit" id="getAllInfo" type="button">Get Info</button>
+      </form>
+    </div>
+    </div>
+    <div class="col-md-3">
+    <div class="jumbotron">
+    Query concepts
+      <div class="form-group">
+        <textarea id="query_text" class="form-control" rows="3"></textarea>
+      </div>
+      <button name="submit" id="submit_b" type="button">Submit query</button>
+      <h3 hidden>View the results in a graph</h3>
+    </div>
+    </div>
+    <div class="col-md-6">
+    <div class="jumbotron">
+      <div id="query_explanation">Enter some concepts to search for</div>
+    </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 hidden>View the results in a graph</h3>
+      <p hidden>
+        <label for="locale">Select a locale:</label>
+        <select id="locale" onchange="draw(5);">
+          <option value="en" selected>en</option>
+          <option value="nl">nl</option>
+        </select>
+      </p>
+      <p hidden>
+        <input type="button" id="btn-UD" value="Up-Down">
+        <input type="button" id="btn-DU" value="Down-Up">
+        <input type="button" id="btn-LR" value="Left-Right">
+        <input type="button" id="btn-RL" value="Right-Left">
+        <input type="hidden" id='direction' value="UD">
+      </p>
+      <div id="network-popUp">
+        <span id="operation">node</span> <br>
+        <table style="margin:auto;"><tr>
+          <td>id</td><td><input id="node-id" value="new value" /></td>
+        </tr>
+          <tr>
+            <td>label</td><td><input id="node-label" value="new value" /></td>
+          </tr></table>
+        <input type="button" value="save" id="saveButton" />
+        <input type="button" value="cancel" id="cancelButton" />
+      </div>
+      <br />
+      <div id="mynetwork"></div>
+    </div>
+    <div class="col-md-6">
+      <h4 class="text-center" id="tables_for_concept">Information in tables</h4>
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#home">Relationships</a></li>
+        <li><a data-toggle="tab" href="#menu1">Parents</a></li>
+        <li><a data-toggle="tab" href="#menu2">Children</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+          <div class="result_allInfo" id="relationships">Fetch relationships</div>
+        </div>
+        <div id="menu1" class="tab-pane fade">
+          <div class="result_allInfo" id="parents">Fetch parents</div>
+        </div>
+        <div id="menu2" class="tab-pane fade">
+          <div class="result_allInfo" id="children">Fetch children</div>
+        </div>
+      </div>
+    </div>
+  </div>   
+    <iframe  hidden src="http://bioportal.bioontology.org/widgets/visualization?ontology=NCIT&class=http%3A%2F%2Fncicb.nci.nih.gov%2Fxml%2Fowl%2FEVS%2FThesaurus.owl%23C38999&apikey=b93271f8-3520-4181-a160-3b88214bc034"
+      frameborder="5" width="800" height="600">
+    </iframe>
+
+    <h3 hidden>Concepts are imported from the I2E through a REST interface: "aspirin"+"toxicity"</h3>
+    <h3 hidden>Jena reasoning engine is used to "understand" the query and if a specific course of action must be followed:</h3>
+    <ul style="list-style-type:disc" hidden>
+      <li>IF (a drug and an effect(e.g toxicity) are mentioned) THEN (look for drug-ingredients relations)</li>
+    </ul>
+
+   <h3>From the NIH using the https://id.nlm.nih.gov/mesh/sparql endpoint</h3>
+   <div>For the query: </div>
+   <div id=query_nih>The Query is...</div>
+   <div>Results in a table: </div>
+   <div id="result_nih">Fetching ontology data...</div>
+
+   <h3>From the bioportal using the http://sparql.bioontology.org/sparql/ endpoint</h3>
+   <div>For the query: </div>
+   <div id=query>The Query is...</div>
+   <div>Results in a table: </div>
+   <div id="result">Fetching ontology data...</div>
+    <!-- <p style="width: 700px; font-size:14px; text-align: justify;">
+      The localization is only relevant to the manipulation buttons.
+    </p> -->
+    <input type="text" name="a" class="bp_form_complete-all-uri" size="100"/>
+    <div hidden id="widget_tree"></div>
+    <div hidden id="bp_quick_jump"></div>
+    <div id='interMainContent'></div>
+
+  </body>
+</html>
