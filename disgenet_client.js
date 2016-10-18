@@ -1,4 +1,6 @@
 //---------------------------------Using the http://rdf.disgenet.org/sparql/--------------------------
+// This query retrieves all genes associated with a specific disease: (c1:C1,C2) with C1=Disease, C2=Gene
+// Can be part of a getAllInfo:(c1:C1) query for a specific relation to C2 
 var disgenet3_c1='"Alzheimer\'s Disease"';
 var disgenet3_query_details=new query_details(
   [{concept1:disgenet3_c1},{category1: "Disease"},{category2: "Gene"}],
@@ -33,10 +35,9 @@ var disgenet3_query_details=new query_details(
   ?scoreIRI sio:SIO_000300 ?score . \n\
   FILTER (?score > "0.29"^^xsd:decimal) } \n\
   ORDER BY DESC(?score)');
-
-
 //console.log(disgenet3_query_details);
 //console.log(disgenet3_query_details.sparql_query);
+
 function onFailure_disgenet(xhr, status) {
     $("#result").html(status + " (See console.)");
     console.log("error");
@@ -61,7 +62,22 @@ function onSuccess_disgenet(json) {
   //table_draw(num_of_columns,results,disgenet3_query_details.parameter_mapping[0].concept1);
   //graph_draw([],[],[]);
 }
-
+/* Give me the genes and the phenotypes associated with 'Nodular lymphocyte predominant Hodgkin lymphoma' 
+(Orphanet_86893). 
+SELECT ?gene ?disease ?diseaseName ?phenotype ?phenotypeName
+WHERE { 
+?gda sio:SIO_000628 ?disease,?gene . 
+?gene dcterms:title ?geneName .
+?disease dcterms:title ?diseaseName ; 
+skos:exactMatch <http://identifiers.org/orphanet/86893> . 
+<http://identifiers.org/orphanet/86893> dcterms:title ?orphanetName ; 
+sio:SIO_001279 ?phenotype . 
+?phenotype dcterms:title ?phenotypeName 
+FILTER regex(?gene, 'ncbigene') 
+FILTER regex(?disease, 'umls/id') 
+} 
+GROUP BY ?disease ?diseaseName
+*/
 //disgenet.query(query_string_disgenet).done(onSuccess_disgenet).error(onFailure_disgenet);
 //});
 /* For Alzheimer Disease, give me all the genes associated with the disease with a score greater than 0.29.

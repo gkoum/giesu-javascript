@@ -1,16 +1,64 @@
+/*
+aspirin:Drug
+Pain:Disease
+*/
 var type_of_query=0;
 var concepts_for_search=[];
 var paths=[{c1:'',p:'',c2:''}];
-var results=[{c1:'',p:'',c2:''}]
+var results=[{c1:'',p:'',c2:''}];
+
 // When the add its concept to the query is pressed 
-function addToQuery(search_concepts, nodes, edges){
+function addToQuery(nodes, edges){
 // Get concept/s from the input box -> Map them to categories (Drug, Disease) OR Drug and Relation
-	var categories; // []
-	var calculated_paths;
-	categories=mapToCategory(search_concepts);
+	var categories=[];
+	var input_concept=$('#ontology_class').val();
+	var query_concepts=$('#query_text').val();
+	var search_concepts=[];
+	var tmp_category;
+	var exists=false;
+  if(query_concepts){
+  	query_concepts=($('#query_text').val()).split('\n');
+  	for(var i=0;i<query_concepts.length;i++){
+  		if(query_concepts[i]==input_concept)
+  			exists=true;
+  		search_concepts.push(query_concepts[i].split(':')[0]);
+  		categories.push(query_concepts[i].split(':')[1]);
+  		console.log(input_concept,query_concepts,search_concepts,categories,categories[0]);
+  	}
+  	if(exists)
+  		alert("Concept already exists and cannot be added twice");
+    else if(input_concept.split(':')[1]!=undefined){
+			search_concepts.push(input_concept.split(':')[0]);
+  		categories.push(input_concept.split(':')[1]);
+  		$('#query_text').val(query_concepts+'\n'+input_concept);
+		}else{
+			search_concepts.push(input_concept);
+			tmp_category=mapToCategory(input_concept);
+			categories.push(tmp_category); // better return an array of objects:[{con:"morphine",cat:"Drug"}]
+			$('#query_text').val(query_concepts+'\n'+input_concept+':'+categories[0]);
+		}
+    console.log(input_concept,query_concepts,search_concepts,categories,categories[0]);
+  }
+  else{
+  	if(input_concept.split(':')[1]!=undefined){
+			search_concepts.push(input_concept.split(':')[0]);
+  		categories.push(input_concept.split(':')[1]);
+  		$('#query_text').val(input_concept);
+		}else{
+			search_concepts.push(input_concept);
+			tmp_category=mapToCategory(input_concept);
+			categories.push(tmp_category);
+			$('#query_text').val(input_concept+':'+categories[0]);
+		}
+		console.log(input_concept,query_concepts,search_concepts,categories,categories[0]);
+    
+  }
+	var calculated_paths=[];
+
 	if (search_concepts.length==1 && categories[0]!=0){ //code {concept,?,?} -> type 1
 		type_of_query=1;
 		console.log('Search for concept '+search_concepts[0]+' : '+categories[0]+' will be performed.');
+		inform_user(type_of_query, search_concepts, []);
 	}
 	else if (search_concepts.length==1 && search_concepts[0]=="1 relation") {//code {?,relation,?} -> type 2
 		type_of_query=2;
@@ -19,7 +67,7 @@ function addToQuery(search_concepts, nodes, edges){
 	else if (search_concepts.length==2 && (categories[0]!=0 && categories[1]!=0)){ //{concept,?,concept} -> type 3
 		type_of_query=3;
 		calculated_paths=twoConcepts_paths(categories, search_concepts, nodes, edges);
-		inform_user(type_of_query, calculated_paths);
+		inform_user(type_of_query, search_concepts, calculated_paths);
 	}
 	else if (search_concepts.length==2 && (categories[0]!=0 || categories[1]!=0)){ //{concept,relation,?} -> type 4
 		type_of_query=4;
@@ -38,8 +86,10 @@ function twoConcepts_paths(categories, search_concepts, nodes, edges){
 // Search for paths and present them to user: calls the path-finder service
 	//var pfs = new PathFinderService();
 	var paths=[];
-	//paths=pfs.find(categories[0],categories[1], nodes, edges);
-	paths=find(1,7, nodes, edges);
+	var node_numbers=pathNamestoIds(categories);
+	console.log(categories,node_numbers);
+	paths=find(node_numbers[0],node_numbers[1], nodes, edges);
+	//paths=find(1,7, nodes, edges);
 	console.log(nodes);
 	console.log(paths);
 	var each_path=[];

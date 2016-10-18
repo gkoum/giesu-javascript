@@ -14,28 +14,49 @@ function graph_draw(initial_nodes, initial_edges, query_triples) {
   var triple_nodes=[]; 
   var triple_edges=[];
   var node_from;
+  var type;
   console.log(query_triples);
   if(query_triples){
     for(var tr=0;tr<query_triples.length;tr++){
-      console.log(triple_nodes);
+      console.log(triple_nodes.length);
       if(triple_nodes.length>0){
-        for(var n=0;n<triple_nodes.length;n++){
-          if(query_triples[tr].o==triple_nodes[n].label){
-            node_from=triple_nodes[n].id;
-            triple_nodes.push({id: tr+3, label: query_triples[tr].s});
-            triple_edges.push({from: node_from, to: tr+3, label:query_triples[tr].p, arrows:'to'});
-          }else 
-          if(query_triples[tr].s==triple_nodes[n].label){
-            node_from=triple_nodes[n].id;
-            triple_nodes.push({id: tr+3, label: query_triples[tr].o});
-            triple_edges.push({from: node_from, to: tr+3, label:query_triples[tr].p, arrows:'from'});
-          }
-          else{
+        console.log(triple_nodes);
 
+        //if(contains(triple_nodes,query_triples[tr].o))
+
+        for(var n=0;n<triple_nodes.length;n++){
+          console.log(triple_nodes[n]);
+          if(query_triples[tr].o==triple_nodes[n].label){
+            type=1;
+            node_from=triple_nodes[n].id;
+            break;
           }
+          else if(query_triples[tr].s==triple_nodes[n].label){
+            type=2;
+            node_from=triple_nodes[n].id;
+            break;
+          }
+          else
+            type=3;
         }
+        console.log(type,node_from,tr);
+        if(type==1){
+          triple_nodes.push({id: tr+2, label: query_triples[tr].s});
+          triple_edges.push({from: node_from, to: tr+2, label:query_triples[tr].p, arrows:'to'});
+          console.log(triple_nodes[0]);
+        }else if(type==2){
+          triple_nodes.push({id: tr+2, label: query_triples[tr].o});
+          triple_edges.push({from: node_from, to: tr+2, label:query_triples[tr].p, arrows:'from'});
+          console.log(triple_nodes[0]);
+        }
+        else{
+          triple_nodes.push({id: tr+2, label: query_triples[tr].o},{id: tr+3, label: query_triples[tr].s});
+          triple_edges.push({from: tr+2, to: tr+3, label:query_triples[tr].p, arrows:'to'});
+          console.log(triple_nodes[0]);
+        }
+
       }else{
-        triple_nodes.push({id: 1, label: query_triples[0].s},{id: 2, label: query_triples[0].o});
+        triple_nodes.push({id: 1, label: query_triples[0].o},{id: 2, label: query_triples[0].s});
         triple_edges.push({from: 1, to: 2, label:query_triples[0].p, arrows:'to'});
       }
 
@@ -138,4 +159,13 @@ function saveData(data,callback) {
   data.label = document.getElementById('node-label').value;
   clearPopUp();
   callback(data);
+}
+function contains(a, obj) {
+  var i = a.length;
+  while (i--) {
+     if (a[i] === obj) {
+         return true;
+     }
+  }
+  return false;
 }
